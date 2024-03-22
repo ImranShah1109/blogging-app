@@ -1,5 +1,7 @@
 const express = require('express');
 require('dotenv').config();
+const session = require('express-session');
+const MongoDbSession = require('connect-mongodb-session')(session);
 
 // file imports
 const db = require('./config/db');
@@ -10,6 +12,25 @@ const app = express();
 // middlewares
 app.use(express.json());
 
+
+// store for MongoDb Session
+const store = new MongoDbSession({
+    uri : process.env.MONGO_URI,
+    collection : "sessions",
+});
+
+// Using the session middleware
+app.use(
+    session({
+        secret : process.env.SECRET_KEY,
+        resave : false,
+        saveUninitialized : false,
+        store : store
+    })
+);
+
+
+// add all the routes from routes
 
 app.use("/api", routes);
 
